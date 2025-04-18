@@ -1,0 +1,27 @@
+[build]
+  # Directory containing the serverless functions
+  functions = "netlify/functions"
+  # Command to build your site (not strictly needed for API, but good practice)
+  # If you have a frontend or need build steps, put them here.
+  # command = "echo 'No build command needed for pure API'"
+  # Directory containing deploy-ready assets (not relevant for pure API)
+  # publish = "."
+
+# Redirect rule to map the user-facing API path to the function
+[[redirects]]
+  # The path users will call
+  from = "/calculate"
+  # The internal path to the function file (api.py -> becomes 'api')
+  to = "/.netlify/functions/api"
+  # Status 200 means it's a rewrite, preserving the HTTP method (POST)
+  status = 200
+  # Force the rewrite even if a file exists at /calculate (unlikely here)
+  # force = true
+
+# Optional: If you want the web UI at the root '/'
+# You need to configure publish directory and maybe render template in GET
+# [[redirects]]
+#  from = "/"
+#  to = "/.netlify/functions/api" # Route GET / to the function
+#  status = 200
+#  force = true # If you have an index.html you don't want served directly
