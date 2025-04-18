@@ -1,3 +1,0 @@
-Flask
-serverless-wsgi
-# No gunicorn needed
