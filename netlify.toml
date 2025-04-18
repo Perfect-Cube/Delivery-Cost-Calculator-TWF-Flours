@@ -1,27 +1,52 @@
+# netlify.toml
+
 [build]
+  # Command to build your project (not needed for simple Python function)
+  # command = "echo 'No build command needed'"
+
   # Directory containing the serverless functions
   functions = "netlify/functions"
-  # Command to build your site (not strictly needed for API, but good practice)
-  # If you have a frontend or need build steps, put them here.
-  # command = "echo 'No build command needed for pure API'"
-  # Directory containing deploy-ready assets (not relevant for pure API)
-  # publish = "."
 
-# Redirect rule to map the user-facing API path to the function
+  # Directory with static files to publish (if you had a frontend)
+  # publish = "public" # Example if you had a 'public' folder
+
+# Optional: Specify Python version if needed (check Netlify docs for available versions)
+[build.environment]
+  PYTHON_VERSION = "3.9" # Or 3.8, 3.10, 3.11 etc.
+
+# --- Function Routing (Redirects/Rewrites) ---
+
+# Rule for the POST request to calculate cost
 [[redirects]]
-  # The path users will call
-  from = "/calculate"
-  # The internal path to the function file (api.py -> becomes 'api')
+  # The public URL path users will POST to
+  from = "/api/calculate"
+  # The internal path to your function. Netlify automatically maps this
+  # to /.netlify/functions/<function_filename_without_py>
   to = "/.netlify/functions/api"
-  # Status 200 means it's a rewrite, preserving the HTTP method (POST)
+  # Status 200 indicates a rewrite (proxy), not a redirect
   status = 200
-  # Force the rewrite even if a file exists at /calculate (unlikely here)
-  # force = true
+  # Force the rewrite even if a file exists at the 'from' path
+  force = true
+  # Only apply this rule for POST requests
+  methods = ["POST"]
 
-# Optional: If you want the web UI at the root '/'
-# You need to configure publish directory and maybe render template in GET
+# Rule for the GET request to check status
+[[redirects]]
+  # The public URL path users will GET
+  from = "/api/status" # Or could be the same as POST path if you prefer
+  # The internal path to your function
+  to = "/.netlify/functions/api"
+  status = 200
+  force = true
+  methods = ["GET"]
+
+# You could potentially combine the above GET/POST rules using a wildcard
+# if your Flask app handles multiple methods on the same route internally,
+# but separate rules are often clearer.
+
+# Example of a broader rewrite if your Flask app had more routes under /api/:
 # [[redirects]]
-#  from = "/"
-#  to = "/.netlify/functions/api" # Route GET / to the function
-#  status = 200
-#  force = true # If you have an index.html you don't want served directly
+#   from = "/api/*"
+#   to = "/.netlify/functions/api/:splat"
+#   status = 200
+#   force = true
